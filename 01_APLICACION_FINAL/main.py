@@ -7,11 +7,13 @@ from PIL import Image
 ui_pulmon = None
 ui_piel = None
 ui_mama = None
+ui_futuro = None
 
 try:
     from modulos import ui_pulmon
     from modulos import ui_piel
     from modulos import ui_mama
+    from modulos import ui_futuro
 except ImportError as e:
     print(f"Error importando módulos de UI: {e}")
 
@@ -109,7 +111,7 @@ class OncoAIApp(ctk.CTk):
 
         # Tarjetas Fila 2
         self.create_module_card(cards_grid, 1, 0, "Cáncer de Mama", "Análisis de mamografías.", "img_mama.jpg", COLOR_ACCENT_PINK, "mama", self.abrir_mama)
-        self.create_module_card(cards_grid, 1, 1, "Predicción 5 Años", "Algoritmos predictivos.", "img_futuro.jpg", COLOR_ACCENT_BLUE, "futuro", None)
+        self.create_module_card(cards_grid, 1, 1, "Predicción 5 Años", "Algoritmos predictivos.", "img_futuro.jpg", COLOR_ACCENT_BLUE, "futuro", self.abrir_futuro)
 
     def create_module_card(self, parent, row, col, title, desc, img_name, btn_color, btn_text, command):
         card = ctk.CTkFrame(parent, fg_color=COLOR_BG_CARD, corner_radius=20)
@@ -162,6 +164,20 @@ class OncoAIApp(ctk.CTk):
             ui_mama.BreastDiagnosticWindow(self, model_path, scaler_path)
         else:
             messagebox.showerror("Error", "No se pudo cargar el módulo UI de Mama.")       
+
+
+    def abrir_futuro(self):
+        model_path = os.path.join(self.models_dir, "modelo_futuro.h5")
+        scaler_path = os.path.join(self.models_dir, "scaler_futuro.pkl") # Necesitamos el escalador también
+
+        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+            messagebox.showwarning("Alerta", "Modelo o Escalador no encontrados. Entrénalo primero.")
+            return
+
+        if ui_futuro:
+            ui_futuro.FuturePredictionWindow(self, model_path, scaler_path)
+        else:
+            messagebox.showerror("Error", "No se pudo cargar el módulo UI de Predicción Futura.")
 
 if __name__ == "__main__":
     app = OncoAIApp()
