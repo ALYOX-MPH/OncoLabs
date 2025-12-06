@@ -1,0 +1,16 @@
+Ignorar carpetas de entorno virtual
+
+.venv/
+venv/
+env/
+
+Ignorar archivos compilados de Python (basura)
+
+pycache/
+*.pyc
+
+Ignorar base de datos de VS Code
+
+.vscode/
+
+.h5

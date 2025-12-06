@@ -1,0 +1,1 @@
+# Funciones auxiliares para procesar imágenes antes de pasarlas a la IA
