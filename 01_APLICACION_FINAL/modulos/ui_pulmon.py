@@ -117,17 +117,17 @@ class LungDiagnosticWindow(ctk.CTkToplevel):
         img_array = np.expand_dims(img_array, axis=0)
 
         prediction = self.model.predict(img_array)
-        prob = prediction[0][0]
-        
-        # Lógica de resultado
-        is_cancer = prob < 0.5 
-        conf = (1 - prob) * 100 if is_cancer else prob * 100
-        
-        text = "DETECTADO: POSIBLE CARCINOMA" if is_cancer else "RESULTADO: TEJIDO SANO"
-        color = "#e74c3c" if is_cancer else "#2ecc71" # Rojo vs Verde
+        pred_class = np.argmax(prediction[0])
+        conf = np.max(prediction[0]) * 100
 
-        self.after(0, lambda: self.update_result(text, color, conf))
+        clases = ["Normal", "Benigno", "Maligno"]
+        colores = ["#2ecc71", "#f39c12", "#e74c3c"]  # Verde, Naranja, Rojo
+
+        text = f"RESULTADO: {clases[pred_class]}"
+        color = colores[pred_class]
+
+        self.after(0, lambda: self.update_result(f"{text}\nConfianza: {conf:.2f}%", color, conf))
 
     def update_result(self, text, color, conf):
-        self.lbl_result.configure(text=f"{text}\nConfianza: {conf:.2f}%", text_color=color)
+        self.lbl_result.configure(text=text, text_color=color)
         self.progress.set(1)
