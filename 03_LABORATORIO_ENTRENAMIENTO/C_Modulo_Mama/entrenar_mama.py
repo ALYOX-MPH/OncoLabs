@@ -6,7 +6,7 @@ from tensorflow.keras import layers, models
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-import joblib # Para guardar el calibrador de datos
+import joblib 
 
 # Rutas
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +15,6 @@ SCALER_SAVE_PATH = os.path.join(BASE_DIR, "..", "..", "02_MODELOS_ENTRENADOS", "
 
 print(" Cargando Dataset de Biopsias de Wisconsin...")
 # Usamos solo 5 características clave para que la interfaz sea fácil de usar
-# (Radio, Textura, Perímetro, Área, Suavidad)
 data = load_breast_cancer()
 # Índices de las 5 columnas principales (mean radius, mean texture, mean perimeter, mean area, mean smoothness)
 selected_features = [0, 1, 2, 3, 4] 
@@ -38,11 +37,11 @@ X_test_scaled = scaler.transform(X_test)
 
 # 3. Crear la Red Neuronal (ANN)
 model = models.Sequential([
-    layers.Input(shape=(5,)), # Esperamos 5 datos de entrada
-    layers.Dense(16, activation='relu'), # Capa oculta 1
-    layers.Dense(32, activation='relu'), # Capa oculta 2
-    layers.Dense(16, activation='relu'), # Capa oculta 3
-    layers.Dense(1, activation='sigmoid') # Salida (Probabilidad 0-1)
+    layers.Input(shape=(5,)), 
+    layers.Dense(16, activation='relu'), 
+    layers.Dense(32, activation='relu'),
+    layers.Dense(16, activation='relu'),
+    layers.Dense(1, activation='sigmoid')
 ])
 
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
@@ -58,7 +57,7 @@ print(f"\nPrecisión del modelo: {accuracy * 100:.2f}%")
 # 6. Guardar
 os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
 model.save(MODEL_SAVE_PATH)
-joblib.dump(scaler, SCALER_SAVE_PATH) # Guardamos el escalador
+joblib.dump(scaler, SCALER_SAVE_PATH) 
 
 print(f" Modelo guardado: {MODEL_SAVE_PATH}")
 print(f" Escalador guardado: {SCALER_SAVE_PATH}")

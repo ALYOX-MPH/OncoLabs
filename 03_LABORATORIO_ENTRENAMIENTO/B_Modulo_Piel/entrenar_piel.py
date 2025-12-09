@@ -1,23 +1,30 @@
 import os
 import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers, models
+from tensorflow.keras import layers, models, optimizers
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.applications import MobileNetV2
 
-# Configuración del entorno
+# --- CONFIGURACIÓN ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_DIR = os.path.join(BASE_DIR, "dataset_piel")
 MODEL_SAVE_PATH = os.path.join(BASE_DIR, "..", "..", "02_MODELOS_ENTRENADOS", "modelo_piel.h5")
-GRAPH_SAVE_PATH = os.path.join(BASE_DIR, "rendimiento_modelo.png")
+GRAPH_SAVE_PATH = os.path.join(BASE_DIR, "reporte_dermatoscopico.png")
 
-IMG_SIZE = (150, 150)
+IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
-EPOCHS = 10 
+EPOCHS = 20 
 
-# Generadores de datos con Augmentation (Para mayor realismo y generalización)
+print(f"INICIANDO TRANSFER LEARNING CON MOBILENET V2")
+print(f" Dataset: {DATASET_DIR}")
+
+# --- 1. PREPARACIÓN DE DATOS ---
+
 train_datagen = ImageDataGenerator(
-    rescale=1./255,
-    rotation_range=40,
+    rescale=1./255,   
+    rotation_range=30,
     width_shift_range=0.2,
     height_shift_range=0.2,
     shear_range=0.2,
@@ -27,14 +34,13 @@ train_datagen = ImageDataGenerator(
     validation_split=0.2
 )
 
-print(f"--- Cargando datos desde: {DATASET_DIR} ---")
-
 train_generator = train_datagen.flow_from_directory(
     DATASET_DIR,
     target_size=IMG_SIZE,
     batch_size=BATCH_SIZE,
     class_mode='binary',
-    subset='training'
+    subset='training',
+    shuffle=True
 )
 
 validation_generator = train_datagen.flow_from_directory(
@@ -42,71 +48,71 @@ validation_generator = train_datagen.flow_from_directory(
     target_size=IMG_SIZE,
     batch_size=BATCH_SIZE,
     class_mode='binary',
-    subset='validation'
+    subset='validation',
+    shuffle=False
 )
 
-# Arquitectura CNN Profesional
-model = models.Sequential([
-    layers.Input(shape=(150, 150, 3)),
-    
-    layers.Conv2D(32, (3, 3), activation='relu'),
-    layers.MaxPooling2D(2, 2),
-    
-    layers.Conv2D(64, (3, 3), activation='relu'),
-    layers.MaxPooling2D(2, 2),
-    
-    layers.Conv2D(128, (3, 3), activation='relu'),
-    layers.MaxPooling2D(2, 2),
-    
-    layers.Conv2D(128, (3, 3), activation='relu'),
-    layers.MaxPooling2D(2, 2),
-    
-    layers.Flatten(),
-    layers.Dropout(0.5), # Evita sobreajuste
-    layers.Dense(512, activation='relu'),
-    layers.Dense(1, activation='sigmoid')
-])
+# --- 2. ARQUITECTURA: TRANSFER LEARNING ---
+# Descargamos el cerebro pre-entrenado de Google (MobileNetV2)
 
-model.compile(loss='binary_crossentropy',
-              optimizer=tf.keras.optimizers.RMSprop(learning_rate=1e-4),
+base_model = MobileNetV2(input_shape=(224, 224, 3), include_top=False, weights='imagenet')
+
+# CONGELAMOS el cerebro base para no dañar lo que ya sabe
+base_model.trainable = False 
+
+# Creamos nuestro modelo montado encima
+inputs = tf.keras.Input(shape=(224, 224, 3))
+
+# Capa de adaptación interna: MobileNet espera valores entre -1 y 1
+x = layers.Lambda(lambda x: (x * 2.0) - 1.0)(inputs) 
+
+x = base_model(x, training=False) 
+x = layers.GlobalAveragePooling2D()(x) 
+x = layers.Dropout(0.2)(x) 
+outputs = layers.Dense(1, activation='sigmoid')(x) 
+
+model = models.Model(inputs, outputs)
+
+# Compilamos
+model.compile(optimizer=optimizers.Adam(learning_rate=0.0001), 
+              loss='binary_crossentropy',
               metrics=['accuracy'])
 
-# Entrenamiento
-print("--- Iniciando entrenamiento ---")
+model.summary()
+
+# --- 3. ENTRENAMIENTO ---
+callbacks = [
+    EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True),
+    ModelCheckpoint(MODEL_SAVE_PATH, monitor='val_accuracy', save_best_only=True)
+]
+
+print("\n ENTRENANDO CAPA SUPERIOR...")
 history = model.fit(
     train_generator,
-    steps_per_epoch=train_generator.samples // BATCH_SIZE,
     epochs=EPOCHS,
     validation_data=validation_generator,
-    validation_steps=validation_generator.samples // BATCH_SIZE
+    callbacks=callbacks
 )
 
-# Guardar Modelo
-os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
-model.save(MODEL_SAVE_PATH)
-print(f"Modelo guardado en: {MODEL_SAVE_PATH}")
-
-# Generar y Guardar Gráfica de Rendimiento
+# --- 4. REPORTE ---
 acc = history.history['accuracy']
 val_acc = history.history['val_accuracy']
 loss = history.history['loss']
 val_loss = history.history['val_loss']
 
-epochs_range = range(len(acc))
-
 plt.figure(figsize=(12, 6))
-
 plt.subplot(1, 2, 1)
-plt.plot(epochs_range, acc, label='Training Accuracy')
-plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-plt.legend(loc='lower right')
-plt.title('Training and Validation Accuracy')
+plt.plot(acc, label='Precisión Entrenamiento')
+plt.plot(val_acc, label='Precisión Validación')
+plt.title('Precisión (Transfer Learning)')
+plt.legend()
 
 plt.subplot(1, 2, 2)
-plt.plot(epochs_range, loss, label='Training Loss')
-plt.plot(epochs_range, val_loss, label='Validation Loss')
-plt.legend(loc='upper right')
-plt.title('Training and Validation Loss')
+plt.plot(loss, label='Error Entrenamiento')
+plt.plot(val_loss, label='Error Validación')
+plt.title('Error (Debe bajar suavemente)')
+plt.legend()
 
 plt.savefig(GRAPH_SAVE_PATH)
-print(f"Gráfica de rendimiento guardada en: {GRAPH_SAVE_PATH}")
+print(f" Gráficas generadas: {GRAPH_SAVE_PATH}")
+print(f"Modelo guardado: {MODEL_SAVE_PATH}")

@@ -8,21 +8,29 @@ ui_pulmon = None
 ui_piel = None
 ui_mama = None
 ui_futuro = None
+ui_bioscan = None
+ui_wallet = None
 
+# Intentamos importar uno por uno para saber cuál falla
 try:
     from modulos import ui_pulmon
     from modulos import ui_piel
     from modulos import ui_mama
     from modulos import ui_futuro
 except ImportError as e:
-    print(f"Error importando módulos de UI: {e}")
+    print(f"Error cargando módulos médicos: {e}")
+
+try:
+    from modulos import ui_bioscan
+except ImportError as e:
+    print(f" Error cargando BioScan (Falta opencv o mediapipe): {e}")
 
 # --- PALETA DE COLORES ---
-COLOR_BG_MAIN = "#1A2238"      # Azul oscuro de fondo
-COLOR_BG_CARD = "#2A3447"      # Azul medio para tarjetas
-COLOR_ACCENT_PINK = "#E96E9C"  # Rosado
-COLOR_ACCENT_ORANGE = "#F39C12" # Naranja
-COLOR_ACCENT_BLUE = "#3498DB"  # Azul
+COLOR_BG_MAIN = "#1A2238"      
+COLOR_BG_CARD = "#2A3447"     
+COLOR_ACCENT_PINK = "#E96E9C"  
+COLOR_ACCENT_ORANGE = "#F39C12"
+COLOR_ACCENT_BLUE = "#3498DB"  
 COLOR_TEXT_WHITE = "#FFFFFF"
 COLOR_TEXT_GRAY = "#AAB7C4"
 
@@ -33,7 +41,7 @@ class OncoAIApp(ctk.CTk):
         super().__init__()
 
         # Configuración Ventana
-        self.title("OncoLabs AI")
+        self.title("OncoLabs AI - Plataforma Integral")
         self.geometry("1280x800")
         self.configure(fg_color=COLOR_BG_MAIN)
 
@@ -61,25 +69,28 @@ class OncoAIApp(ctk.CTk):
         if os.path.exists(path):
             return ctk.CTkImage(light_image=Image.open(path), dark_image=Image.open(path), size=size)
         else:
-            print(f"⚠️ Imagen no encontrada: {filename}")
+            # Retorna imagen vacía si falla para no romper la app
             return ctk.CTkImage(Image.new("RGBA", size, (0,0,0,0)), size=size)
 
     def create_sidebar(self):
         self.sidebar = ctk.CTkFrame(self, fg_color=COLOR_BG_CARD, corner_radius=0, width=250)
         self.sidebar.grid(row=0, column=0, sticky="nsew")
-        self.sidebar.grid_rowconfigure(4, weight=1)
+        self.sidebar.grid_rowconfigure(6, weight=1) # Espaciador al final
 
         # Logo
-        logo_img = self.load_image("logo_oncolabs.png", (220, 80)) # Ajusta tamaño si es necesario
+        logo_img = self.load_image("logo_oncolabs.png", (220, 80)) 
         lbl_logo = ctk.CTkLabel(self.sidebar, text="", image=logo_img)
         lbl_logo.grid(row=0, column=0, padx=20, pady=(40, 40))
 
-        # Menú
-        self.create_menu_btn("Inicio", 1, True)
-        self.create_menu_btn("Módulos", 2, False)
-        self.create_menu_btn("Sobre Nosotros", 3, False)
+        # Menú Lateral
+        self.create_menu_btn("Inicio", 1, True, None)
+        
+        # --- AQUÍ ESTÁ EL BOTÓN DE BIOSCAN EN EL SIDEBAR ---
+        self.create_menu_btn("BioScan Facial", 3, False, self.abrir_bioscan)
+        
+        self.create_menu_btn("Sobre Nosotros", 4, False, self.show_about)
 
-    def create_menu_btn(self, text, row, is_active):
+    def create_menu_btn(self, text, row, is_active, command_func):
         fg_color = COLOR_ACCENT_PINK if is_active else "transparent"
         text_color = COLOR_TEXT_WHITE if is_active else COLOR_TEXT_GRAY
         
@@ -87,7 +98,8 @@ class OncoAIApp(ctk.CTk):
                             fg_color=fg_color, text_color=text_color,
                             hover_color=COLOR_BG_MAIN,
                             font=ctk.CTkFont(size=16, weight="bold" if is_active else "normal"),
-                            height=50, corner_radius=8)
+                            height=50, corner_radius=8,
+                            command=command_func) # Ahora aceptamos comandos
         btn.grid(row=row, column=0, padx=20, pady=10, sticky="ew")
 
     def create_dashboard_content(self):
@@ -97,8 +109,7 @@ class OncoAIApp(ctk.CTk):
         
         ctk.CTkLabel(title_frame, text="Bienvenido a ", font=ctk.CTkFont(size=32, weight="bold"), text_color=COLOR_TEXT_WHITE).pack(side="left")
         ctk.CTkLabel(title_frame, text="OncoLabs", font=ctk.CTkFont(size=32, weight="bold"), text_color=COLOR_ACCENT_PINK).pack(side="left")
-        ctk.CTkLabel(title_frame, text=" - Diagnóstico Inteligente", font=ctk.CTkFont(size=32), text_color=COLOR_TEXT_WHITE).pack(side="left")
-
+        
         # Grid de Tarjetas
         cards_grid = ctk.CTkFrame(self.main_content, fg_color="transparent")
         cards_grid.pack(fill="both", expand=True)
@@ -134,50 +145,56 @@ class OncoAIApp(ctk.CTk):
     def abrir_pulmon(self):
         model_path = os.path.join(self.models_dir, "modelo_pulmon.h5")
         if not os.path.exists(model_path):
-            messagebox.showwarning("Alerta", "Modelo de Pulmón no encontrado. Entrénalo primero.")
+            messagebox.showwarning("Alerta", "Modelo Pulmón no encontrado.")
             return
-        if ui_pulmon:
-            ui_pulmon.LungDiagnosticWindow(self, model_path)
-        else:
-            messagebox.showerror("Error", "No se pudo cargar el módulo UI de Pulmón.")
+        if ui_pulmon: ui_pulmon.LungDiagnosticWindow(self, model_path)
+        else: messagebox.showerror("Error", "Módulo Pulmón no cargado.")
 
     def abrir_piel(self):
         model_path = os.path.join(self.models_dir, "modelo_piel.h5")
         if not os.path.exists(model_path):
-            messagebox.showwarning("Alerta", "Modelo de Piel no encontrado. Entrénalo primero.")
+            messagebox.showwarning("Alerta", "Modelo Piel no encontrado.")
             return
-        if ui_piel:
-            ui_piel.SkinDiagnosticWindow(self, model_path)
-        else:
-            messagebox.showerror("Error", "No se pudo cargar el módulo UI de Piel.")
-
+        if ui_piel: ui_piel.SkinDiagnosticWindow(self, model_path)
+        else: messagebox.showerror("Error", "Módulo Piel no cargado.")
 
     def abrir_mama(self):
         model_path = os.path.join(self.models_dir, "modelo_mama.h5")
-        scaler_path = os.path.join(self.models_dir, "scaler_mama.pkl") # Necesitamos el escalador también
-
-        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-            messagebox.showwarning("Alerta", "Modelo o Escalador no encontrados. Entrénalo primero.")
+        scaler_path = os.path.join(self.models_dir, "scaler_mama.pkl")
+        if not os.path.exists(model_path):
+            messagebox.showwarning("Alerta", "Modelo Mama no encontrado.")
             return
-
-        if ui_mama:
-            ui_mama.BreastDiagnosticWindow(self, model_path, scaler_path)
-        else:
-            messagebox.showerror("Error", "No se pudo cargar el módulo UI de Mama.")       
-
+        if ui_mama: ui_mama.BreastDiagnosticWindow(self, model_path, scaler_path)
+        else: messagebox.showerror("Error", "Módulo Mama no cargado.")
 
     def abrir_futuro(self):
         model_path = os.path.join(self.models_dir, "modelo_futuro.h5")
-        scaler_path = os.path.join(self.models_dir, "scaler_futuro.pkl") # Necesitamos el escalador también
-
-        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-            messagebox.showwarning("Alerta", "Modelo o Escalador no encontrados. Entrénalo primero.")
+        scaler_path = os.path.join(self.models_dir, "scaler_futuro.pkl")
+        if not os.path.exists(model_path):
+            messagebox.showwarning("Alerta", "Modelo Futuro no encontrado.")
             return
+        if ui_futuro: ui_futuro.FuturePredictionWindow(self, model_path, scaler_path)
+        else: messagebox.showerror("Error", "Módulo Predicción no cargado.")
 
-        if ui_futuro:
-            ui_futuro.FuturePredictionWindow(self, model_path, scaler_path)
+    def abrir_bioscan(self):
+        if ui_bioscan:
+            ui_bioscan.BioScanWindow(self)
         else:
-            messagebox.showerror("Error", "No se pudo cargar el módulo UI de Predicción Futura.")
+            # Si entras aquí es porque falló el import de cv2 o mediapipe
+            messagebox.showerror("Error Crítico", "No se pudo cargar BioScan.\n\nAsegúrate de instalar:\npip install opencv-python mediapipe")
+
+    def show_about(self):
+        messagebox.showinfo("Sobre OncoLabs AI",
+                            "OncoLabs AI - Plataforma Integral de Diagnóstico Asistido por IA\n\n"
+                            "Desarrollado por el equipo de CincoBits.\n"
+                            "Integrantes:\n\n"
+                            "Alvaro Miguel\n"
+                            "Johaly Concepcion\n"
+                            "Jeremy Hernandez\n"
+                            "Manuel Rosario\n"
+                            "Edgar Rosario\n"
+                            "\n\n"
+                            "© 2024 OncoLabs. Todos los derechos reservados.")
 
 if __name__ == "__main__":
     app = OncoAIApp()
