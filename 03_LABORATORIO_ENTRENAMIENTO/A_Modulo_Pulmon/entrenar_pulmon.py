@@ -8,6 +8,8 @@ from tensorflow.keras.applications import VGG16
 from PIL import Image
 from collections import Counter
 import matplotlib.pyplot as plt
+import os
+import matplotlib.pyplot as plt
 
 # --- 1. CONFIGURACIÓN ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -187,6 +189,8 @@ model.save(MODEL_SAVE_PATH)
 print(f"✅ Modelo guardado exitosamente en:\n   {os.path.abspath(MODEL_SAVE_PATH)}")
 
 # --- 9. GRAFICADO DE RESULTADOS ---
+
+# Unir historial de entrenamiento
 def concat_history(hist1, hist2):
     result = {}
     for k in hist1.history.keys():
@@ -195,10 +199,10 @@ def concat_history(hist1, hist2):
 
 full_history = concat_history(history_1, history_2)
 
-import matplotlib.pyplot as plt
+# Grafica precicion y error
 plt.figure(figsize=(12, 5))
 
-# Precisión
+# -------- Precicion --------
 plt.subplot(1, 2, 1)
 plt.plot(full_history['accuracy'], label='Precisión Entrenamiento')
 plt.plot(full_history['val_accuracy'], label='Precisión Validación')
@@ -206,8 +210,9 @@ plt.title('Precisión - Cáncer de Pulmón')
 plt.xlabel('Época')
 plt.ylabel('Precisión')
 plt.legend()
+plt.grid(True)
 
-# Error (Loss)
+# -------- Error(Loss) --------
 plt.subplot(1, 2, 2)
 plt.plot(full_history['loss'], label='Error Entrenamiento')
 plt.plot(full_history['val_loss'], label='Error Validación')
@@ -215,9 +220,12 @@ plt.title('Error - Cáncer de Pulmón')
 plt.xlabel('Época')
 plt.ylabel('Error')
 plt.legend()
+plt.grid(True)
 
 plt.tight_layout()
+
+# Guardar imagen
 plt.savefig(os.path.join(BASE_DIR, "grafica_entrenamiento_pulmon.png"))
 plt.show()
 
-print("¡Entrenamiento finalizado!")
+print("¡Entrenamiento finalizado! Gráfica generada correctamente.")
