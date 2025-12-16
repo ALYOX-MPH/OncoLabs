@@ -10,6 +10,7 @@ ui_mama = None
 ui_futuro = None
 ui_bioscan = None
 ui_wallet = None
+ui_chatbot = None
 
 # Intentamos importar uno por uno para saber cuál falla
 try:
@@ -17,6 +18,7 @@ try:
     from modulos import ui_piel
     from modulos import ui_mama
     from modulos import ui_futuro
+    from modulos import ui_chatbot
 except ImportError as e:
     print(f"Error cargando módulos médicos: {e}")
 
@@ -86,9 +88,12 @@ class OncoAIApp(ctk.CTk):
         self.create_menu_btn("Inicio", 1, True, None)
         
         # --- AQUÍ ESTÁ EL BOTÓN DE BIOSCAN EN EL SIDEBAR ---
-        # self.create_menu_btn("BioScan Facial", 3, False, self.abrir_bioscan)
+        self.create_menu_btn("BioScan Facial", 3, False, self.abrir_bioscan)
         
-        self.create_menu_btn("Sobre Nosotros", 4, False, self.show_about)
+        self.create_menu_btn("OncoBot", 4, False, self.abrir_chatbot)
+        
+        self.create_menu_btn("Sobre Nosotros", 5, False, self.show_about)
+
 
     def create_menu_btn(self, text, row, is_active, command_func):
         fg_color = COLOR_ACCENT_PINK if is_active else "transparent"
@@ -122,7 +127,9 @@ class OncoAIApp(ctk.CTk):
 
         # Tarjetas Fila 2
         self.create_module_card(cards_grid, 1, 0, "Cáncer de Mama", "Análisis de mamografías.", "img_mama.jpg", COLOR_ACCENT_PINK, "mama", self.abrir_mama)
-        # self.create_module_card(cards_grid, 1, 1, "Predicción 5 Años", "Algoritmos predictivos.", "img_futuro.jpg", COLOR_ACCENT_BLUE, "futuro", self.abrir_futuro)
+        self.create_module_card(cards_grid, 1, 1, "Predicción 5 Años", "Algoritmos predictivos.", "img_futuro.jpg", COLOR_ACCENT_BLUE, "futuro", self.abrir_futuro)
+
+ 
 
     def create_module_card(self, parent, row, col, title, desc, img_name, btn_color, btn_text, command):
         card = ctk.CTkFrame(parent, fg_color=COLOR_BG_CARD, corner_radius=20)
@@ -167,21 +174,21 @@ class OncoAIApp(ctk.CTk):
         if ui_mama: ui_mama.BreastDiagnosticWindow(self, model_path, scaler_path)
         else: messagebox.showerror("Error", "Módulo Mama no cargado.")
 
-    # def abrir_futuro(self):
-    #     model_path = os.path.join(self.models_dir, "modelo_futuro.h5")
-    #     scaler_path = os.path.join(self.models_dir, "scaler_futuro.pkl")
-    #     if not os.path.exists(model_path):
-    #         messagebox.showwarning("Alerta", "Modelo Futuro no encontrado.")
-    #         return
-    #     if ui_futuro: ui_futuro.FuturePredictionWindow(self, model_path, scaler_path)
-    #     else: messagebox.showerror("Error", "Módulo Predicción no cargado.")
+    def abrir_futuro(self):
+         model_path = os.path.join(self.models_dir, "modelo_futuro.h5")
+         scaler_path = os.path.join(self.models_dir, "scaler_futuro.pkl")
+         if not os.path.exists(model_path):
+             messagebox.showwarning("Alerta", "Modelo Futuro no encontrado.")
+             return
+         if ui_futuro: ui_futuro.FuturePredictionWindow(self, model_path, scaler_path)
+         else: messagebox.showerror("Error", "Módulo Predicción no cargado.")
 
-    # def abrir_bioscan(self):
-    #     if ui_bioscan:
-    #         ui_bioscan.BioScanWindow(self)
-    #     else:
-    #         # Si entras aquí es porque falló el import de cv2 o mediapipe
-    #         messagebox.showerror("Error Crítico", "No se pudo cargar BioScan.\n\nAsegúrate de instalar:\npip install opencv-python mediapipe")
+    def abrir_bioscan(self):
+         if ui_bioscan:
+            ui_bioscan.BioScanWindow(self)
+         else:
+             # Si entras aquí es porque falló el import de cv2 o mediapipe
+             messagebox.showerror("Error Crítico", "No se pudo cargar BioScan.\n\nAsegúrate de instalar:\npip install opencv-python mediapipe")
 
     def show_about(self):
         messagebox.showinfo("Sobre OncoLabs AI",
@@ -195,6 +202,12 @@ class OncoAIApp(ctk.CTk):
                             "Edgar Rosario\n"
                             "\n\n"
                             "© 2024 OncoLabs. Todos los derechos reservados.")
+        
+    def abrir_chatbot(self):
+        if ui_chatbot:
+            ui_chatbot.ChatbotWindow(self, self.models_dir)
+        else:
+            messagebox.showerror("Error", "Módulo Chatbot no cargado (Instala nltk).")  
 
 if __name__ == "__main__":
     app = OncoAIApp()

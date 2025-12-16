@@ -9,3 +9,4 @@ tkinter
 customtkinter
 joblib
 mediapipe 
+nltk

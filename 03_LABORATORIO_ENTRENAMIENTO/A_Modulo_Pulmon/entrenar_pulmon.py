@@ -22,20 +22,20 @@ EPOCHS_FASE_1 = 15  # Épocas para entrenar solo la cabecera
 EPOCHS_FASE_2 = 50  # Épocas para el ajuste fino (Fine Tuning)
 LOSS_FN = tf.keras.losses.CategoricalCrossentropy(label_smoothing=0.05)
 
-print("🚀 INICIANDO SISTEMA DE ENTRENAMIENTO PARA CÁNCER DE PULMÓN")
-print(f"📂 Directorio de trabajo: {BASE_DIR}")
+print(" INICIANDO SISTEMA DE ENTRENAMIENTO PARA CÁNCER DE PULMÓN")
+print(f" Directorio de trabajo: {BASE_DIR}")
 
 # --- 2. GENERACIÓN DE DATOS  ---
 def verificar_estructura_datos():
     if not os.path.exists(DATASET_DIR):
-        print("❌ ERROR CRÍTICO: No se encuentra la carpeta 'dataset_pulmon'.")
+        print(" ERROR CRÍTICO: No se encuentra la carpeta 'dataset_pulmon'.")
         print("   Por favor, coloca tus imágenes reales organizadas en carpetas: 'normal', 'benigno', 'maligno'.")
         return False
     
     # Verificacion si hay imágenes reales 
     total_imgs = sum([len(files) for r, d, files in os.walk(DATASET_DIR)])
     if total_imgs < 10:
-        print("⚠️ ADVERTENCIA: Hay muy pocas imágenes. El modelo no aprenderá correctamente.")
+        print("ADVERTENCIA: Hay muy pocas imágenes. El modelo no aprenderá correctamente.")
         print("   Asegúrate de borrar las imágenes de 'ruido' generadas anteriormente si existen.")
     return True
 
@@ -85,7 +85,7 @@ class_weights = {cls: (total_samples / (num_classes * count)) for cls, count in 
 
 # Mostrar resumen claro de qué datos se están usando
 indices_inv = {v: k for k, v in train_generator.class_indices.items()}
-print("📊  Imágenes originales detectadas por clase:")
+print("Imágenes originales detectadas por clase:")
 for i, count in counter.items():
     print(f"   Clase {indices_inv[i]}: {count} archivos")
 
@@ -118,7 +118,7 @@ model = models.Sequential([
 ])
 
 # --- 6. FASE 1: ENTRENAMIENTO DE CABECERA ---
-print("\n🔥 FASE 1: Entrenando solo las nuevas capas densas...")
+print("\nFASE 1: Entrenando solo las nuevas capas densas...")
 model.compile(optimizer=optimizers.Adam(learning_rate=0.001),
               loss=LOSS_FN,
               metrics=['accuracy'])
@@ -178,13 +178,13 @@ history_2 = model.fit(
 
 if os.path.exists(CHECKPOINT_WEIGHTS):
     model.load_weights(CHECKPOINT_WEIGHTS)
-    print(f"🧠 Pesos restaurados desde: {CHECKPOINT_WEIGHTS}")
+    print(f" Pesos restaurados desde: {CHECKPOINT_WEIGHTS}")
 
 # --- 8. GUARDADO DEL MODELO ---
-print("\n💾 Guardando modelo final...")
+print("\n Guardando modelo final...")
 os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
 model.save(MODEL_SAVE_PATH)
-print(f"✅ Modelo guardado exitosamente en:\n   {os.path.abspath(MODEL_SAVE_PATH)}")
+print(f" Modelo guardado exitosamente en:\n   {os.path.abspath(MODEL_SAVE_PATH)}")
 
 # --- 9. GRAFICADO DE RESULTADOS ---
 def concat_history(hist1, hist2):
