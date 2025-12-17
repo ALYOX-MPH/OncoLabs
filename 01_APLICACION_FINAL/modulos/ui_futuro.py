@@ -7,7 +7,6 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# Lazy Loading
 tf = None 
 def cargar_tensorflow_lazy():
     global tf
@@ -21,10 +20,10 @@ class FuturePredictionWindow(ctk.CTkToplevel):
         super().__init__(parent)
         self.title("Módulo D: Predicción de Riesgo Oncológico (Datos Reales)")
         self.geometry("1200x800")
+        self.configure(fg_color="#E2E1E1") 
         self.model_path = model_path
         self.scaler_path = scaler_path
         
-        # Rutas auxiliares
         base = os.path.dirname(model_path)
         self.features_path = os.path.join(base, "features_futuro.pkl")
         
@@ -33,36 +32,34 @@ class FuturePredictionWindow(ctk.CTkToplevel):
         self.feature_names = []
         self.inputs = {}
 
-        # Layout
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        # Paneles
         self.create_form_panel()
         self.create_result_panel()
 
         threading.Thread(target=self.init_system, daemon=True).start()
 
     def create_form_panel(self):
-        self.scroll = ctk.CTkScrollableFrame(self, label_text="EVALUACIÓN CLÍNICA COMPLETA", corner_radius=0)
+        self.scroll = ctk.CTkScrollableFrame(self, label_text="EVALUACIÓN CLÍNICA COMPLETA", corner_radius=0, fg_color="#D1CFCF", label_text_color="#0E0E0E")
         self.scroll.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         
-        self.lbl_loading_form = ctk.CTkLabel(self.scroll, text="Cargando parámetros del modelo...", text_color="orange")
+        self.lbl_loading_form = ctk.CTkLabel(self.scroll, text="Cargando parámetros del modelo...", text_color="#F39C12")
         self.lbl_loading_form.pack(pady=20)
 
         self.btn_calc = ctk.CTkButton(self.scroll, text="EJECUTAR ANÁLISIS PREDICTIVO", height=50, 
-                                      fg_color="#2980b9", font=ctk.CTkFont(size=15, weight="bold"),
-                                      state="disabled", command=self.predict)
+                                      fg_color="#67C090", text_color="#FFFFFF", font=ctk.CTkFont(size=15, weight="bold"),
+                                      state="disabled", command=self.predict, hover_color="#4E9F75")
         self.btn_calc.pack(pady=30, padx=20, fill="x", side="bottom")
 
     def create_result_panel(self):
-        self.panel_right = ctk.CTkFrame(self, fg_color="#1a1a1a")
+        self.panel_right = ctk.CTkFrame(self, fg_color="#F0F2F5") 
         self.panel_right.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
         
-        ctk.CTkLabel(self.panel_right, text="PROYECCIÓN DE RIESGO", font=ctk.CTkFont(size=20, weight="bold")).pack(pady=30)
+        ctk.CTkLabel(self.panel_right, text="PROYECCIÓN DE RIESGO", font=ctk.CTkFont(size=20, weight="bold"), text_color="#0E0E0E").pack(pady=30)
         
-        self.lbl_risk = ctk.CTkLabel(self.panel_right, text="---", font=ctk.CTkFont(size=60, weight="bold"))
+        self.lbl_risk = ctk.CTkLabel(self.panel_right, text="---", font=ctk.CTkFont(size=60, weight="bold"), text_color="#0E0E0E")
         self.lbl_risk.pack(pady=20)
 
         self.chart_frame = ctk.CTkFrame(self.panel_right, fg_color="transparent")
@@ -88,7 +85,6 @@ class FuturePredictionWindow(ctk.CTkToplevel):
     def generate_form_fields(self):
         self.lbl_loading_form.destroy()
         
-        # Diccionario de Traducción (Inglés Dataset -> Español Interfaz)
         traducciones = {
             'Age': 'Edad (Años)',
             'Gender': 'Género',
@@ -96,7 +92,7 @@ class FuturePredictionWindow(ctk.CTkToplevel):
             'Alcohol use': 'Consumo de Alcohol',
             'Dust Allergy': 'Alergia al Polvo',
             'OccuPational Hazards': 'Riesgos Laborales',
-            'Occupational Hazards': 'Riesgos Laborales', # Por si acaso el typo varía
+            'Occupational Hazards': 'Riesgos Laborales', 
             'Genetic Risk': 'Riesgo Genético',
             'chronic Lung Disease': 'Enf. Pulmonar Crónica',
             'Balanced Diet': 'Dieta Balanceada',
@@ -120,24 +116,21 @@ class FuturePredictionWindow(ctk.CTkToplevel):
             frame = ctk.CTkFrame(self.scroll, fg_color="transparent")
             frame.pack(fill="x", pady=2, padx=5)
             
-            # Limpiamos el nombre original y buscamos su traducción
             raw_name = feature.strip()
-            label_text = traducciones.get(raw_name, raw_name) # Si no está en el dic, usa el original
+            label_text = traducciones.get(raw_name, raw_name) 
             
-            ctk.CTkLabel(frame, text=label_text, anchor="w", font=ctk.CTkFont(weight="bold")).pack(side="left")
+            ctk.CTkLabel(frame, text=label_text, anchor="w", font=ctk.CTkFont(weight="bold"), text_color="#0E0E0E").pack(side="left")
             
             if 'age' in feature.lower():
                 var = ctk.StringVar(value="30")
-                ctk.CTkEntry(frame, textvariable=var, width=60).pack(side="right")
+                ctk.CTkEntry(frame, textvariable=var, width=60, fg_color="#FFFFFF", text_color="#0E0E0E").pack(side="right")
             elif 'gender' in feature.lower():
                 var = ctk.IntVar(value=1)
-                ctk.CTkSwitch(frame, text="M / F", variable=var, onvalue=1, offvalue=2).pack(side="right")
+                ctk.CTkSwitch(frame, text="M / F", variable=var, onvalue=1, offvalue=2, progress_color="#67C090", text_color="#0E0E0E").pack(side="right")
             else:
-                # Slider del 1 al 8 (o el rango que tenga tu dataset)
                 var = ctk.IntVar(value=1)
-                ctk.CTkSlider(frame, from_=1, to=8, variable=var, width=120, height=15).pack(side="right", padx=5)
-                # Label pequeño para ver el valor numérico
-                lbl_val = ctk.CTkLabel(frame, textvariable=var, width=20, text_color="gray")
+                ctk.CTkSlider(frame, from_=1, to=8, variable=var, width=120, height=15, progress_color="#67C090", button_color="#67C090", button_hover_color="#4E9F75").pack(side="right", padx=5)
+                lbl_val = ctk.CTkLabel(frame, textvariable=var, width=20, text_color="#747474")
                 lbl_val.pack(side="right")
             
             self.inputs[feature] = var
@@ -156,10 +149,10 @@ class FuturePredictionWindow(ctk.CTkToplevel):
             
             riesgo = self.model.predict(data_scaled)[0][0] * 100
             
-            color = "#2ecc71"
+            color = "#67C090"
             status = "BAJO RIESGO"
             if riesgo > 40:
-                color = "#f1c40f"
+                color = "#F39C12"
                 status = "RIESGO MODERADO"
             if riesgo > 75:
                 color = "#e74c3c"
@@ -174,15 +167,14 @@ class FuturePredictionWindow(ctk.CTkToplevel):
     def draw_gauge(self, value, color, msg):
         for w in self.chart_frame.winfo_children(): w.destroy()
         fig, ax = plt.subplots(figsize=(5, 4), dpi=100)
-        fig.patch.set_facecolor('#1a1a1a')
-        ax.set_facecolor('#1a1a1a')
+        fig.patch.set_facecolor('#F0F2F5')
+        ax.set_facecolor('#F0F2F5')
         ax.axis('equal')
         
-        # Evitamos valores negativos o mayores a 100 visualmente
         val_plot = max(0, min(100, value))
         
-        ax.pie([val_plot, 100-val_plot], startangle=90, colors=[color, '#333333'], wedgeprops={'width': 0.3}, counterclock=False)
-        ax.text(0, 0, f"{msg}\n\nPredicción\nIA", ha='center', va='center', color='white', fontsize=12, fontweight='bold')
+        ax.pie([val_plot, 100-val_plot], startangle=90, colors=[color, '#D1CFCF'], wedgeprops={'width': 0.3}, counterclock=False)
+        ax.text(0, 0, f"{msg}\n\nPredicción\nIA", ha='center', va='center', color='#0E0E0E', fontsize=12, fontweight='bold')
         
         canvas = FigureCanvasTkAgg(fig, master=self.chart_frame)
         canvas.draw()

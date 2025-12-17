@@ -1,0 +1,64 @@
+{
+  "intents": [
+    {
+      "tag": "saludo",
+      "patterns": ["Hola", "Buenas tardes", "Hay alguien ahi?", "Buenos dias", "Que tal", "Saludos"],
+      "responses": ["¡Hola! Soy OncoBot, tu asistente de OncoLabs. ¿En qué puedo ayudarte sobre salud, economía o nuestros módulos?", "Bienvenido a OncoLabs. Estoy aquí para guiarte en la prevención y el ahorro."]
+    },
+    {
+      "tag": "equipo",
+      "patterns": ["Quienes son", "Creadores", "Equipo", "CincoBits", "Desarrolladores", "Quien hizo esto", "Integrantes", "5 bits"],
+      "responses": ["Este sistema fue desarrollado por el equipo innovador **CincoBits**. \n\nLíder y Arquitecto Principal: Alvaro Miguiel Perez Herrera.\n\nDemas Participantes:\n• Alvaro Miguel\n• Johaly Concepcion\n• Jeremy Hernandez\n• Manuel Rosario\n• Edgar Rosario\n\nJuntos unimos tecnología y salud para la recuperación económica."]
+    },
+    {
+      "tag": "economia",
+      "patterns": ["Cuanto cuesta el cancer", "Impacto economico", "Perdida de dinero", "Por que es caro enfermarse", "Ahorro", "Dinero", "Recuperacion economica"],
+      "responses": ["El cáncer detectado tardíamente cuesta miles de dólares en tratamientos y quiebra familias. La detección temprana con OncoLabs ahorra hasta un 90% de ese gasto.", "Las enfermedades no diagnosticadas causan una pérdida de 200 mil millones anuales a la economía global. OncoLabs ayuda a reducir ese impacto manteniendo la fuerza laboral sana."]
+    },
+    {
+      "tag": "bioscan",
+      "patterns": ["Que es el bioscan", "Para que sirve la camara", "Detector de fatiga", "Escaner facial", "BioScan", "Ojos cerrados"],
+      "responses": ["El BioScan Facial utiliza visión artificial para analizar tu rostro en tiempo real. Detecta fatiga laboral y signos de agotamiento midiendo tu parpadeo, ayudando a prevenir accidentes y mejorar la productividad."]
+    },
+    {
+      "tag": "piel",
+      "patterns": ["Tengo una mancha", "Analisis de piel", "Lunar raro", "Dermatologo", "Cancer de piel", "Modulo piel"],
+      "responses": ["Nuestro Módulo de Piel usa Inteligencia Artificial (Transfer Learning) para analizar lunares y lesiones. Te ofrece una segunda opinión inmediata sobre si es benigno o maligno con alta precisión."]
+    },
+    {
+      "tag": "pulmon",
+      "patterns": ["Modulo pulmon", "Cancer de pulmon", "Tos", "Radiografia", "Pulmones", "Rayos X"],
+      "responses": ["El Módulo de Pulmón analiza imágenes de Rayos X y Tomografías (TC). Utiliza redes neuronales convolucionales para detectar nódulos y anomalías en etapas tempranas."]
+    },
+    {
+      "tag": "mama",
+      "patterns": ["Modulo mama", "Cancer de mama", "Biopsia", "Senos", "Examen de mama", "Datos clinicos"],
+      "responses": ["El Módulo de Mama procesa datos clínicos de biopsias (como radio, textura y perímetro) mediante redes neuronales para determinar la probabilidad de malignidad con precisión estadística."]
+    },
+    {
+      "tag": "prediccion",
+      "patterns": ["Prediccion 5 años", "Futuro", "Riesgo futuro", "Bola de cristal", "Prediccion", "Que me pasara"],
+      "responses": ["Nuestro Motor Predictivo analiza tu estilo de vida (dieta, ejercicio, fumar) y datos biométricos para calcular tu probabilidad porcentual de desarrollar patologías en los próximos 5 años."]
+    },
+    {
+      "tag": "genetica",
+      "patterns": ["Analisis de ADN", "Herencia", "Genetica", "Mis padres tuvieron cancer", "OncoGenetica", "ADN"],
+      "responses": ["El Módulo OncoGenética evalúa tu árbol genealógico y factores de riesgo hereditarios. Genera un perfil de ADN digital para decirte si necesitas pruebas genéticas especializadas."]
+    },
+    {
+      "tag": "comida",
+      "patterns": ["Escaner de comida", "Alimentos", "Nutricion", "OncoFood", "Que comer", "Ingredientes toxicos"],
+      "responses": ["OncoFood Lens es nuestro escáner nutricional. Apunta la cámara a un producto y detectaremos ingredientes cancerígenos o aditivos peligrosos en tiempo real para que compres seguro."]
+    },
+    {
+      "tag": "seguridad",
+      "patterns": ["Es seguro?", "Quien reviso esto", "Certificaciones", "Dra Dilcia", "Es confiable"],
+      "responses": ["Totalmente. OncoLabs ha sido validado técnicamente por la Dra. Dilcia Peña Peña, quien certifica que es una herramienta segura, no invasiva y que no infiere daños al paciente."]
+    },
+    {
+      "tag": "despedida",
+      "patterns": ["Adios", "Bye", "Hasta luego", "Gracias", "Nos vemos", "Cerrar"],
+      "responses": ["¡Cuida tu salud y tu economía! Hasta pronto.", "Gracias por confiar en CincoBits y OncoLabs. Recuerda: prevenir es la mejor inversión."]
+    }
+  ]
+}

@@ -8,3 +8,7 @@ pillow
 tkinter
 customtkinter
 joblib
+mediapipe 
+nltk
+
+Descargar: tesseract-ocr
