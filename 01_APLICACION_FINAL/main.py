@@ -28,13 +28,13 @@ except ImportError as e:
     print(f" Error cargando BioScan (Falta opencv o mediapipe): {e}")
 
 # --- PALETA DE COLORES ---
-COLOR_BG_MAIN = "#1A2238"      
-COLOR_BG_CARD = "#2A3447"     
-COLOR_ACCENT_PINK = "#E96E9C"  
+COLOR_BG_MAIN = "#E2E1E1"      
+COLOR_BG_CARD = "#D1CFCF"     
+COLOR_ACCENT_PINK = "#67C090"  
 COLOR_ACCENT_ORANGE = "#F39C12"
 COLOR_ACCENT_BLUE = "#3498DB"  
-COLOR_TEXT_WHITE = "#FFFFFF"
-COLOR_TEXT_GRAY = "#AAB7C4"
+COLOR_TEXT_WHITE = "#0E0E0E"
+COLOR_TEXT_GRAY = "#747474"
 
 ctk.set_appearance_mode("Dark")
 
@@ -123,11 +123,11 @@ class OncoAIApp(ctk.CTk):
 
         # Tarjetas Fila 1
         self.create_module_card(cards_grid, 0, 0, "Cáncer de Pulmón", "Análisis de Rayos X y TC.", "img_pulmon.jpg", COLOR_ACCENT_PINK, "pulmon", self.abrir_pulmon)
-        self.create_module_card(cards_grid, 0, 1, "Cáncer de Piel", "Dermatoscopia avanzada.", "img_piel.jpg", COLOR_ACCENT_ORANGE, "piel", self.abrir_piel)
+        self.create_module_card(cards_grid, 0, 1, "Cáncer de Piel", "Dermatoscopia avanzada.", "img_piel.jpg", COLOR_ACCENT_PINK, "piel", self.abrir_piel)
 
         # Tarjetas Fila 2
         self.create_module_card(cards_grid, 1, 0, "Cáncer de Mama", "Análisis de mamografías.", "img_mama.jpg", COLOR_ACCENT_PINK, "mama", self.abrir_mama)
-        self.create_module_card(cards_grid, 1, 1, "Predicción 5 Años", "Algoritmos predictivos.", "img_futuro.jpg", COLOR_ACCENT_BLUE, "futuro", self.abrir_futuro)
+        self.create_module_card(cards_grid, 1, 1, "Predicción 5 Años", "Algoritmos predictivos.", "img_futuro.jpg", COLOR_ACCENT_PINK, "futuro", self.abrir_futuro)
 
  
 

@@ -5,7 +5,6 @@ import numpy as np
 import threading
 import os
 
-# Variable global para lazy loading
 tf = None 
 
 def cargar_tensorflow_lazy():
@@ -27,57 +26,49 @@ class LungDiagnosticWindow(ctk.CTkToplevel):
         super().__init__(parent)
         self.title("Módulo A: Análisis Pulmonar")
         self.geometry("900x700")
+        self.configure(fg_color="#E2E1E1")
         self.model_path = model_path
         self.model = None
 
-        # Grid Layout
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=2)
         self.grid_rowconfigure(0, weight=1)
 
-        # --- PANEL IZQUIERDO (CONTROLES) ---
-        self.panel_left = ctk.CTkFrame(self, corner_radius=0)
+        self.panel_left = ctk.CTkFrame(self, corner_radius=0, fg_color="#D1CFCF")
         self.panel_left.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        ctk.CTkLabel(self.panel_left, text="CONTROLES", font=ctk.CTkFont(size=20, weight="bold")).pack(pady=20)
+        ctk.CTkLabel(self.panel_left, text="CONTROLES", font=ctk.CTkFont(size=20, weight="bold"), text_color="#0E0E0E").pack(pady=20)
 
-        # Estado del sistema
-        self.status_frame = ctk.CTkFrame(self.panel_left, fg_color="#2B2B2B")
+        self.status_frame = ctk.CTkFrame(self.panel_left, fg_color="#E2E1E1")
         self.status_frame.pack(fill="x", padx=10, pady=10)
-        self.lbl_status = ctk.CTkLabel(self.status_frame, text="⚡ Cargando IA...", text_color="yellow")
+        self.lbl_status = ctk.CTkLabel(self.status_frame, text="⚡ Cargando IA...", text_color="#747474")
         self.lbl_status.pack(pady=10)
 
-        # Botón Cargar
-        self.btn_load = ctk.CTkButton(self.panel_left, text="📂 Subir Radiografía", command=self.load_image, state="disabled", height=50)
+        self.btn_load = ctk.CTkButton(self.panel_left, text="📂 Subir Radiografía", command=self.load_image, state="disabled", height=50, fg_color="#67C090", text_color="#FFFFFF", hover_color="#4E9F75")
         self.btn_load.pack(fill="x", padx=20, pady=20)
 
-        # Barra de progreso (Decorativa por ahora)
-        self.progress = ctk.CTkProgressBar(self.panel_left)
+        self.progress = ctk.CTkProgressBar(self.panel_left, progress_color="#67C090")
         self.progress.set(0)
         self.progress.pack(fill="x", padx=20, pady=10)
 
-        # --- PANEL DERECHO (VISUALIZACIÓN) ---
         self.panel_right = ctk.CTkFrame(self, fg_color="transparent")
         self.panel_right.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
 
-        # Area de imagen
-        self.img_frame = ctk.CTkFrame(self.panel_right, fg_color="#1a1a1a")
+        self.img_frame = ctk.CTkFrame(self.panel_right, fg_color="#000000")
         self.img_frame.pack(fill="both", expand=True, pady=(0, 20))
         
         self.lbl_img = ctk.CTkLabel(self.img_frame, text="\n\n[ VISTA PREVIA IMAGEN ]\n\n", text_color="gray")
         self.lbl_img.pack(expand=True)
 
-        # Area de Resultados
-        self.res_frame = ctk.CTkFrame(self.panel_right, height=150, fg_color="#2B2B2B")
+        self.res_frame = ctk.CTkFrame(self.panel_right, height=150, fg_color="#D1CFCF")
         self.res_frame.pack(fill="x")
 
-        self.lbl_result_title = ctk.CTkLabel(self.res_frame, text="DIAGNÓSTICO:", font=ctk.CTkFont(size=14))
+        self.lbl_result_title = ctk.CTkLabel(self.res_frame, text="DIAGNÓSTICO:", font=ctk.CTkFont(size=14), text_color="#747474")
         self.lbl_result_title.pack(pady=(10,0))
         
-        self.lbl_result = ctk.CTkLabel(self.res_frame, text="Esperando datos...", font=ctk.CTkFont(size=24, weight="bold"))
+        self.lbl_result = ctk.CTkLabel(self.res_frame, text="Esperando datos...", font=ctk.CTkFont(size=24, weight="bold"), text_color="#0E0E0E")
         self.lbl_result.pack(pady=10)
 
-        # Iniciar carga en hilo
         threading.Thread(target=self.init_model, daemon=True).start()
 
     def init_model(self):
@@ -85,8 +76,8 @@ class LungDiagnosticWindow(ctk.CTkToplevel):
             tf_module = cargar_tensorflow_lazy()
             self.model = tf_module.keras.models.load_model(self.model_path)
             
-            self.after(0, lambda: self.lbl_status.configure(text="✅ IA LISTA", text_color="#00FF00"))
-            self.after(0, lambda: self.btn_load.configure(state="normal", fg_color="#1f6aa5"))
+            self.after(0, lambda: self.lbl_status.configure(text="✅ IA LISTA", text_color="#67C090"))
+            self.after(0, lambda: self.btn_load.configure(state="normal"))
             self.after(0, lambda: self.progress.set(1))
         except Exception as e:
             self.after(0, lambda: self.lbl_status.configure(text="❌ Error de Carga", text_color="red"))
@@ -95,9 +86,7 @@ class LungDiagnosticWindow(ctk.CTkToplevel):
         file_path = filedialog.askopenfilename(filetypes=[("Imágenes", "*.jpg;*.png;*.jpeg")])
         if not file_path: return
 
-        # Mostrar imagen
         img_show = Image.open(file_path)
-        # Mantener ratio
         ratio = img_show.size[0] / img_show.size[1]
         new_h = 400
         new_w = int(new_h * ratio)
@@ -106,8 +95,7 @@ class LungDiagnosticWindow(ctk.CTkToplevel):
         self.lbl_img.configure(image=img_ctk, text="")
         self.lbl_img.image = img_ctk
 
-        # Procesar
-        self.lbl_result.configure(text="Analizando...", text_color="#3498db")
+        self.lbl_result.configure(text="Analizando...", text_color="#3498DB")
         self.progress.set(0.5)
         threading.Thread(target=self.predict, args=(file_path,), daemon=True).start()
 
@@ -117,11 +105,12 @@ class LungDiagnosticWindow(ctk.CTkToplevel):
         img_array = np.expand_dims(img_array, axis=0)
 
         prediction = self.model.predict(img_array)
+        # Ajuste para modelo de 3 clases (Normal, Benigno, Maligno)
         pred_class = np.argmax(prediction[0])
         conf = np.max(prediction[0]) * 100
 
         clases = ["Normal", "Benigno", "Maligno"]
-        colores = ["#2ecc71", "#f39c12", "#e74c3c"]  # Verde, Naranja, Rojo
+        colores = ["#67C090", "#F39C12", "#e74c3c"] 
 
         text = f"RESULTADO: {clases[pred_class]}"
         color = colores[pred_class]

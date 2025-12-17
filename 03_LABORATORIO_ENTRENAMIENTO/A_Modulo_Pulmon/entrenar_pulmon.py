@@ -18,8 +18,8 @@ CHECKPOINT_WEIGHTS = os.path.join(BASE_DIR, "checkpoint_pulmon_best.weights.h5")
 IMG_HEIGHT = 150
 IMG_WIDTH = 150
 BATCH_SIZE = 16
-EPOCHS_FASE_1 = 15  # Épocas para entrenar solo la cabecera
-EPOCHS_FASE_2 = 50  # Épocas para el ajuste fino (Fine Tuning)
+EPOCHS_FASE_1 = 15 
+EPOCHS_FASE_2 = 50  
 LOSS_FN = tf.keras.losses.CategoricalCrossentropy(label_smoothing=0.05)
 
 print(" INICIANDO SISTEMA DE ENTRENAMIENTO PARA CÁNCER DE PULMÓN")
@@ -47,7 +47,7 @@ print("📸 Preparando generadores de imágenes...")
 
 train_datagen = ImageDataGenerator(
     rescale=1./255,
-    validation_split=0.2,       # 20% para validar
+    validation_split=0.2,      
     rotation_range=20,
     width_shift_range=0.15,
     height_shift_range=0.15,
